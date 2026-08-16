@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+constpath = require('path');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
@@ -201,4 +202,13 @@ app.get('/api/menu', auth, async (_,res)=>{ const useMongo = await ensureDbReady
 app.post('/api/menu', auth, async (req,res)=>{ const item={...req.body, price:Number(req.body.price), available:true, image:req.body.image||'🍽️'}; const useMongo = await ensureDbReady(); if(useMongo)return res.status(201).json(await MenuItem.create(item)); item._id='m'+Date.now(); memoryMenu.unshift(item); res.status(201).json(item); });
 app.patch('/api/menu/:id', auth, async (req,res)=>{ const useMongo = await ensureDbReady(); if(useMongo) return res.json(await MenuItem.findByIdAndUpdate(req.params.id,req.body,{new:true})); const i=memoryMenu.findIndex(x=>x._id===req.params.id); if(i<0)return res.status(404).end(); memoryMenu[i]={...memoryMenu[i],...req.body}; res.json(memoryMenu[i]); });
 app.patch('/api/orders/:id', auth, async (req,res)=>{ const useMongo = await ensureDbReady(); if(useMongo)return res.json(await Order.findByIdAndUpdate(req.params.id,req.body,{new:true})); const i=memoryOrders.findIndex(x=>x._id===req.params.id); if(i<0)return res.status(404).end(); memoryOrders[i]={...memoryOrders[i],...req.body}; res.json(memoryOrders[i]); });
+// Serve Vite frontend
+const path = require('path');
+
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// React/Vite SPA fallback
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
 app.listen(process.env.PORT||5000,()=>console.log('Happy Tummy API running on port '+(process.env.PORT||5000)));
