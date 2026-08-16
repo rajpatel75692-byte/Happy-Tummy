@@ -6,7 +6,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon server/index.js",
     "client": "vite --host 0.0.0.0",
-    "build": "vite build",
+    "build": "node node_modules/vite/bin/vite.js build",
     "start": "node server/index.js"
   },
   "dependencies": {
